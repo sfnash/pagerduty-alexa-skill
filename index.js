@@ -5,11 +5,11 @@ const https = require('https');
 const URL = require('url-parse');
 const moment = require('moment-timezone');
 
-const APP_ID = 'amzn1.ask.skill.1e016986-017f-4bb9-9700-f788c11286a3';
+const APP_ID = 'amzn1.ask.skill.4786fe32-8d11-4281-9edb-fc495b6812d9';
 
 const PAGERDUTY_API_ROOT = 'https://api.pagerduty.com';
 
-let accessToken = null;
+const accessToken = 'YOUR_PAGERDUTY_API_KEY';
 
 const UserFacingError = function(message) {
   this.message = message;
@@ -26,7 +26,7 @@ const fetchFromPagerDuty = function(path, options) {
   requestUrl.set('query', options.query);
 
   const headers = {
-    'Authorization': 'Bearer ' + accessToken,
+    'Authorization': 'Token token=' + accessToken,
     'Accept': 'application/vnd.pagerduty+json;version=2.0'
   };
 
@@ -52,9 +52,6 @@ const fetchFromPagerDuty = function(path, options) {
 
 exports.handler = function(event, context) {
   const alexa = Alexa.handler(event, context);
-
-  accessToken = event.session.user.accessToken;
-
   console.log(JSON.stringify(event.request));
 
   alexa.appId = APP_ID;
@@ -125,8 +122,7 @@ const handlers = {
     };
 
     const roleify = function(word, role) {
-      role = role || 'NN'; // By default, mark as a noun
-      return `<w role="ivona:${role}">${word}</w>`;
+      return `<w role="ivona:NN">${word}</w>`;
     };
 
     const tellOncalls = function(oncallTells, userName) {
@@ -151,7 +147,7 @@ const handlers = {
         endings = endings.map(roleify);
 
         if (forevers.length > 1) { forevers[forevers.length - 1] = `and ${forevers[forevers.length - 1]}`; }
-        response += `${forevers.join(', ')} indefinitely`;
+        response += `${forevers.join(', ')}`;
         if (endings.length > 1) { endings[forevers.length - 1] = `and ${endings[forevers.length - 1]}`; }
         if (forevers.length && endings.length) { response += '<break strength="strong"/>, as well as '; }
         response += `${endings.join(', ')}`;
