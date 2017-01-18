@@ -27,7 +27,7 @@ module.exports = function(grunt) {
       default: {
         arn: 'arn:aws:lambda:eu-west-1:961494437890:function:pagerduty-alexa-skill',
         options: {
-          // Task-specific options go here.
+          region: 'eu-west-1'
         }
       }
     }
