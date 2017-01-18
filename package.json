@@ -5,7 +5,7 @@
   "main": "index.js",
   "enginesStrict": true,
   "engines": {
-    "node": ">=4.3 <4.4"
+    "node": ">=4.3"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -33,6 +33,7 @@
   "devDependencies": {
     "grunt": "^1.0.1",
     "grunt-aws-lambda": "^0.13.0",
-    "grunt-node-version": "^1.0.2"
+    "grunt-node-version": "^1.0.2",
+    "minimatch": "^3.0.3"
   }
 }
