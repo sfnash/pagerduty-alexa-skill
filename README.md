@@ -2,7 +2,8 @@
 
 An Amazon Alexa skill that provides information about PagerDuty.
 
-To use this skill you'll need a PagerDuty API key, which can be created as follows: https://support.pagerduty.com/hc/en-us/articles/202829310-Generating-an-API-Key
+To use this skill you'll need a PagerDuty API key, which can be created as follows: 
+https://support.pagerduty.com/hc/en-us/articles/202829310-Generating-an-API-Key
 
 ## Development
 
