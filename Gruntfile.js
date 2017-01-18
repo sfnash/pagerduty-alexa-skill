@@ -25,7 +25,7 @@ module.exports = function(grunt) {
     },
     lambda_deploy: {
       default: {
-        arn: 'arn:aws:lambda:eu-west-1:961494437890:function:pagerduty-alexa-skill',
+        arn: 'arn:aws:lambda:eu-west-1:961494437890:function:pagerduty-skill',
         options: {
           region: 'eu-west-1'
         }
