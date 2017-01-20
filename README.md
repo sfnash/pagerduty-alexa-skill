@@ -14,7 +14,7 @@ Before you begin, make the following changes to the project:
 
 Set the following constants at the top of the file:
 
-APP_ID      - This is your perfronal skill id from developer.amazon.com
+APP_ID      - This is your personal skill id from developer.amazon.com
 accessToken - Your personal PagerDuty API key
 defaultUser - Your name (this should match exactly what you've defined in your intent schama)
 
