@@ -11,6 +11,8 @@ const PAGERDUTY_API_ROOT = 'https://api.pagerduty.com';
 
 const accessToken = 'YOUR_PAGERDUTY_API_KEY';
 
+const defaultUser = 'YOUR_NAME';
+
 const UserFacingError = function(message) {
   this.message = message;
   this.toString = function() {
@@ -211,21 +213,15 @@ const handlers = {
     oncallOptions.query = getSinceUntil(slots.Date.value);
 
     switch(slots.User.value) {
-      case 'I':
-        fetchFromPagerDuty('/user')
-          .then((user) => {
-            return oncalls(user.user.id, oncallOptions).then((oncalls) => {
-              return tellOncalls(oncallTells(oncalls, user.user.time_zone));
-            });
-          });
-        break;
       case undefined:
         alexa.emit(':tell', `Sorry, I didn't understand which user you asked for.`);
         break;
       default:
+        const me = ((slots.User.value == "I") || (slots.User.value == defaultUser));
+        const thisUSer = me ? defaultUser : slots.User.value;
         fetchFromPagerDuty('/users', {
           query: {
-            'query': slots.User.value,
+            'query': thisUSer,
             limit: 5
           }
         }).then((users) => {
@@ -240,7 +236,11 @@ const handlers = {
             alexa.emit(':tell', `I found a few users matching <break strength="weak"/>"${spokenUser}". Did you mean ${foundNames.join(', ')}?`);
           } else {
             return oncalls(users.users[0].id, oncallOptions).then((oncalls) => {
-              return tellOncalls(oncallTells(oncalls, users.users[0].time_zone), users.users[0].name);
+              if (me) {
+                return tellOncalls(oncallTells(oncalls, users.users[0].time_zone));
+              } else {
+                return tellOncalls(oncallTells(oncalls, users.users[0].time_zone), users.users[0].name);
+              }
             });
           }
         });
