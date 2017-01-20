@@ -10,7 +10,7 @@ https://support.pagerduty.com/hc/en-us/articles/202829310-Generating-an-API-Key
 
 Before you begin, make the following changes to the project:
 
-1. index.js
+# index.js
 
 Set the following constants at the top of the file:
 
@@ -18,7 +18,7 @@ APP_ID      - This is your perfronal skill id from developer.amazon.com
 accessToken - Your personal PagerDuty API key
 defaultUser - Your name (this should match exactly what you've defined in your intent schama)
 
-2. Gruntfile.js
+# Gruntfile.js
 
 Update the ARN and region values in the lambda_deploy section, with the specifics from your own Amazon lambda instance.
 
