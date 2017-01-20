@@ -1,9 +1,26 @@
 # PagerDuty skill for Amazon Echo (Alexa)
 
 An Amazon Alexa skill that provides information about PagerDuty.
+This is a fork of Steve Rice's project which allows PagerDuty integration via an API key, rather than OAuth.
 
 To use this skill you'll need a PagerDuty API key, which can be created as follows: 
 https://support.pagerduty.com/hc/en-us/articles/202829310-Generating-an-API-Key
+
+## Getting started
+
+Before you begin, make the following changes to the project:
+
+1. index.js
+
+Set the following constants at the top of the file:
+
+APP_ID      - This is your perfronal skill id from developer.amazon.com
+accessToken - Your personal PagerDuty API key
+defaultUser - Your name (this should match exactly what you've defined in your intent schama)
+
+2. Gruntfile.js
+
+Update the ARN and region values in the lambda_deploy section, with the specifics from your own Amazon lambda instance.
 
 ## Development
 
