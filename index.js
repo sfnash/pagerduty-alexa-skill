@@ -215,7 +215,9 @@ const handlers = {
         break;
       default:
         let thisName = slots.User.value;
-        let isUserSelf = ((thisName == "I") || (thisName = "I'm") || (thisName = "I am") || (thisName == DEFAULT_NAME));
+        let myNames = DEFAULT_NAME.split(" ");
+        let myFirstName = myNames[0];
+        let isUserSelf = ((thisName == "I") || (thisName == "I'm") || (thisName == "I am") || (thisName == DEFAULT_NAME) || (thisName == myFirstName));
         thisName = (isUserSelf) ? DEFAULT_NAME : thisName;
 
         fetchFromPagerDuty('/users', {
