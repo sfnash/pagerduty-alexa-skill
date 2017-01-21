@@ -9,7 +9,9 @@ const APP_ID = 'amzn1.ask.skill.4786fe32-8d11-4281-9edb-fc495b6812d9';
 
 const PAGERDUTY_API_ROOT = 'https://api.pagerduty.com';
 
-const accessToken = 'YOUR_PAGERDUTY_API_KEY';
+const ACCESS_TOKEN = 'YOUR_PAGERDUTY_API_KEY';
+
+const DEFAULT_NAME = 'Simon Nash';
 
 const UserFacingError = function(message) {
   this.message = message;
@@ -26,7 +28,7 @@ const fetchFromPagerDuty = function(path, options) {
   requestUrl.set('query', options.query);
 
   const headers = {
-    'Authorization': 'Token token=' + accessToken,
+    'Authorization': 'Token token=' + ACCESS_TOKEN,
     'Accept': 'application/vnd.pagerduty+json;version=2.0'
   };
 
@@ -211,21 +213,17 @@ const handlers = {
     oncallOptions.query = getSinceUntil(slots.Date.value);
 
     switch(slots.User.value) {
-      case 'I':
-        fetchFromPagerDuty('/user')
-          .then((user) => {
-            return oncalls(user.user.id, oncallOptions).then((oncalls) => {
-              return tellOncalls(oncallTells(oncalls, user.user.time_zone));
-            });
-          });
-        break;
       case undefined:
         alexa.emit(':tell', `Sorry, I didn't understand which user you asked for.`);
         break;
       default:
+        thisName = slots.User.value;
+        isUserSelf = ((thisName == "I") || (thisName = "I'm") || (thisName = "I am") || (thisName == DEFAULT_NAME));
+        thisName = (isUserSelf) ? DEFAULT_NAME : thisName;
+
         fetchFromPagerDuty('/users', {
           query: {
-            'query': slots.User.value,
+            'query': thisName,
             limit: 5
           }
         }).then((users) => {
@@ -239,9 +237,15 @@ const handlers = {
             foundNames[foundNames.length - 1] = `or ${foundNames[foundNames.length - 1]}`;
             alexa.emit(':tell', `I found a few users matching <break strength="weak"/>"${spokenUser}". Did you mean ${foundNames.join(', ')}?`);
           } else {
-            return oncalls(users.users[0].id, oncallOptions).then((oncalls) => {
-              return tellOncalls(oncallTells(oncalls, users.users[0].time_zone), users.users[0].name);
-            });
+            if (isUserSelf) {
+              return oncalls(users.users[0].id, oncallOptions).then((oncalls) => {
+                return tellOncalls(oncallTells(oncalls, users.users[0].time_zone));
+              });
+            } else {
+              return oncalls(users.users[0].id, oncallOptions).then((oncalls) => {
+                return tellOncalls(oncallTells(oncalls, users.users[0].time_zone), users.users[0].name);
+              });
+            }
           }
         });
         break;
