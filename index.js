@@ -149,7 +149,7 @@ const handlers = {
         response += `${forevers.join(', ')}`;
         if (endings.length > 1) { endings[forevers.length - 1] = `and ${endings[forevers.length - 1]}`; }
         if (forevers.length && endings.length) { response += '<break strength="strong"/>, as well as '; }
-        response += `${endings.join(', ')}`;
+        response += `${endings.join(' and ')}`;
         response += '.';
       }
 
