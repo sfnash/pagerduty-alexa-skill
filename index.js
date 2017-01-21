@@ -11,7 +11,7 @@ const PAGERDUTY_API_ROOT = 'https://api.pagerduty.com';
 
 const ACCESS_TOKEN = 'YOUR_PAGERDUTY_API_KEY';
 
-const DEFAULT_NAME = 'Simon Nash';
+const DEFAULT_NAME = 'Joe Bloggs';
 
 const UserFacingError = function(message) {
   this.message = message;
@@ -98,11 +98,12 @@ const handlers = {
       let endings = [];
 
       oncalls.forEach((oncall) => {
+        const fromTime = moment.tz(oncall.start, timeZone);
         const untilTime = moment.tz(oncall.end, timeZone);
         if (untilTime.diff(moment(), 'months', true) > 3) {
           forevers.push(oncall.escalation_policy.summary);
         } else {
-          endings.push(`${oncall.escalation_policy.summary} until ${untilTime.calendar()}`);
+          endings.push(`${oncall.escalation_policy.summary} from ${fromTime.calendar()} until ${untilTime.calendar()}`);
         }
       });
 
@@ -111,13 +112,9 @@ const handlers = {
 
     const celebrationPhrase = function() {
       const phrases = [
-        'Rad!',
+        'Congratulations!',
         'Awesome!',
-        'Neat-o!',
-        'Yee-haw!',
-        'Hot Diggity!',
-        'Huzzah!',
-        'Cowabunga!',
+        'Good News!',
         'Wonderful!'
       ];
       return phrases[Math.floor(Math.random() * phrases.length)];
@@ -217,8 +214,8 @@ const handlers = {
         alexa.emit(':tell', `Sorry, I didn't understand which user you asked for.`);
         break;
       default:
-        thisName = slots.User.value;
-        isUserSelf = ((thisName == "I") || (thisName = "I'm") || (thisName = "I am") || (thisName == DEFAULT_NAME));
+        let thisName = slots.User.value;
+        let isUserSelf = ((thisName == "I") || (thisName = "I'm") || (thisName = "I am") || (thisName == DEFAULT_NAME));
         thisName = (isUserSelf) ? DEFAULT_NAME : thisName;
 
         fetchFromPagerDuty('/users', {
