@@ -7,11 +7,17 @@ OnCallIntent is {User} on call on {Date}
 OnCallIntent if {User} am on call on {Date}
 OnCallIntent if {User} am on call
 OnCallIntent if {User} am on call {Date}
+OnCallIntent if {User} on call on {Date}
+OnCallIntent if {User} on call
+OnCallIntent if {User} on call {Date}
 OnCallIntent if {User} is on call on {Date}
 OnCallIntent if {User} is on call
 OnCallIntent if {User} is on call {Date}
 OnCallIntent whether {User} am on call
 OnCallIntent whether {User} am on call {Date}
 OnCallIntent whether {User} am on call on {Date}
+OnCallIntent whether {User} on call
+OnCallIntent whether {User} on call {Date}
+OnCallIntent whether {User} on call on {Date}
 OnCallIntent whether {User} is on call {Date}
 OnCallIntent whether {User} is on call on {Date}
