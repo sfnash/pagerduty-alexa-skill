@@ -93,21 +93,28 @@ const handlers = {
       });
     };
 
-    const oncallTells = function(oncalls, timeZone) {
-      let forevers = [];
-      let endings = [];
+    const oncallTells = function(oncalls, timeZone, filteredOncallsToFirstDayFound) {
+        let forevers = [];
+        let endings = [];
+        var firstFoundDay;
 
-      oncalls.forEach((oncall) => {
-        const fromTime = moment.tz(oncall.start, timeZone);
-        const untilTime = moment.tz(oncall.end, timeZone);
-        if (untilTime.diff(moment(), 'months', true) > 3) {
-          forevers.push(oncall.escalation_policy.summary);
-        } else {
-          endings.push(`${oncall.escalation_policy.summary} from ${fromTime.calendar()} until ${untilTime.calendar()}`);
-        }
-      });
+        oncalls.forEach((oncall) => {
+            const fromTime = moment.tz(oncall.start, timeZone);
+            const untilTime = moment.tz(oncall.end, timeZone);
+            if (!firstFoundDay) {
+                firstFoundDay = fromTime.clone().endOf('day');
+            }
 
-      return [forevers, endings];
+            if (fromTime.isBefore(firstFoundDay) || !filteredOncallsToFirstDayFound) {
+                if (untilTime.diff(moment(), 'months', true) > 3) {
+                    forevers.push(oncall.escalation_policy.summary);
+                } else {
+                    endings.push(`${oncall.escalation_policy.summary} from ${fromTime.calendar()} until ${untilTime.calendar()}`);
+                }
+            }
+        });
+
+        return [forevers, endings];
     };
 
     const celebrationPhrase = function() {
@@ -125,39 +132,51 @@ const handlers = {
     };
 
     const tellOncalls = function(oncallTells, userName) {
-      let forevers = oncallTells[0];
-      let endings = oncallTells[1];
-      let response = '';
+        let forevers = oncallTells[0];
+        let endings = oncallTells[1];
+        let response = '';
 
-      if (!forevers.length && !endings.length) {
-        if (userName) {
-          response = `${roleify(userName)} is not on call.`;
+        if (!forevers.length && !endings.length) {
+            if (userName) {
+                response = `${roleify(userName)} is not on call.`;
+            } else {
+                response = `${celebrationPhrase()} You are not on call.`;
+            }
         } else {
-          response = `${celebrationPhrase()} You are not on call.`;
+            if (userName) {
+                response = `${roleify(userName)} is on call for `;
+            } else {
+                response = `You are on call for `;
+            }
+
+            forevers = forevers.map(roleify);
+            endings = endings.map(roleify);
+
+            if (forevers.length > 1) {
+                forevers[forevers.length - 1] = `and ${forevers[forevers.length - 1]}`;
+            }
+            response += `${forevers.join(', ')}`;
+            if (endings.length > 1) {
+                endings[forevers.length - 1] = `and ${endings[forevers.length - 1]}`;
+            }
+            if (forevers.length && endings.length) {
+                response += '<break strength="strong"/>, as well as ';
+            }
+            response += `${endings.join(' and ')}`;
+            response += '.';
         }
-      } else {
-        if (userName) {
-          response = `${roleify(userName)} is on call for `;
-        } else {
-          response = `You are on call for `;
-        }
 
-        forevers = forevers.map(roleify);
-        endings = endings.map(roleify);
-
-        if (forevers.length > 1) { forevers[forevers.length - 1] = `and ${forevers[forevers.length - 1]}`; }
-        response += `${forevers.join(', ')}`;
-        if (endings.length > 1) { endings[forevers.length - 1] = `and ${endings[forevers.length - 1]}`; }
-        if (forevers.length && endings.length) { response += '<break strength="strong"/>, as well as '; }
-        response += `${endings.join(' and ')}`;
-        response += '.';
-      }
-
-      alexa.emit(':tell', response);
+        alexa.emit(':tell', response);
     };
 
-    const getSinceUntil = function(dateSlot) {
-      if (slots.Date.value) {
+    const getSinceUntil = function(dateSlot, futureSlot) {
+      if (slots.Future.value) {
+        const now = moment();
+        return {
+          since: now.startOf('day').toISOString(),
+          until: now.add(1, 'week').day(1).endOf('day').toISOString()
+        };
+      } else if (slots.Date.value) {
         // We have to do some trickery to figure out exactly what the user asked for
         // moment.js will represent "Sunday", "next week", or <specific date> all as the same thing, so we need to
         // look at the format used for creation in order ot know what the intent was
@@ -207,13 +226,14 @@ const handlers = {
 
     let oncallOptions = {};
 
-    oncallOptions.query = getSinceUntil(slots.Date.value);
+    oncallOptions.query = getSinceUntil(slots.Date.value, slots.Future.value);
 
     switch(slots.User.value) {
       case undefined:
         alexa.emit(':tell', `Sorry, I didn't understand which user you asked for.`);
         break;
       default:
+        let filteredOncallsToFirstDayFound = false;
         let thisName = slots.User.value;
         let myNames = DEFAULT_NAME.split(" ");
         let myFirstName = myNames[0];
@@ -236,13 +256,16 @@ const handlers = {
             foundNames[foundNames.length - 1] = `or ${foundNames[foundNames.length - 1]}`;
             alexa.emit(':tell', `I found a few users matching <break strength="weak"/>"${spokenUser}". Did you mean ${foundNames.join(', ')}?`);
           } else {
+            if (slots.Future.value) {
+              filteredOncallsToFirstDayFound = true;
+            }
             if (isUserSelf) {
-              return oncalls(users.users[0].id, oncallOptions).then((oncalls) => {
-                return tellOncalls(oncallTells(oncalls, users.users[0].time_zone));
+              return oncalls(users.users[0].id, oncallOptions, filteredOncallsToFirstDayFound).then((oncalls) => {
+                return tellOncalls(oncallTells(oncalls, users.users[0].time_zone, filteredOncallsToFirstDayFound));
               });
             } else {
-              return oncalls(users.users[0].id, oncallOptions).then((oncalls) => {
-                return tellOncalls(oncallTells(oncalls, users.users[0].time_zone), users.users[0].name);
+              return oncalls(users.users[0].id, oncallOptions, filteredOncallsToFirstDayFound).then((oncalls) => {
+                return tellOncalls(oncallTells(oncalls, users.users[0].time_zone, filteredOncallsToFirstDayFound), users.users[0].name);
               });
             }
           }
