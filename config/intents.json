@@ -5,8 +5,12 @@
       "slots": [
         {
           "name": "User",
-          "type": "USER_KEYWORDS"
+          "type": "USER_KEYWORD"
         },
+        {
+          "name": "Future",
+          "type": "FUTURE"
+        },        
         {
           "name": "Date",
           "type": "AMAZON.DATE"
