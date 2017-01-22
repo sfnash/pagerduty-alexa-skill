@@ -173,8 +173,8 @@ const handlers = {
       if (slots.Future.value) {
         const now = moment();
         return {
-          since: now.startOf('day').toISOString(),
-          until: now.add(1, 'week').day(1).endOf('day').toISOString()
+          since: now.toISOString(),
+          until: now.add(1, 'M').endOf('day').toISOString()
         };
       } else if (slots.Date.value) {
         // We have to do some trickery to figure out exactly what the user asked for
@@ -274,7 +274,7 @@ const handlers = {
     }
   },
   'AMAZON.HelpIntent': function () {
-    const speechOutput = 'You can ask me if you or another user is currently on call.';
+    const speechOutput = 'You can ask me if you or another user is currently on call, or when their next on call will occur';
     const reprompt = 'What can I help you with?';
     this.emit(':ask', speechOutput, reprompt);
   },
