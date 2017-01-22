@@ -21,3 +21,6 @@ OnCallIntent whether {User} on call {Date}
 OnCallIntent whether {User} on call on {Date}
 OnCallIntent whether {User} is on call {Date}
 OnCallIntent whether {User} is on call on {Date}
+OnCallIntent when is {User} {Future} on call
+OnCallIntent when am {User} {Future} on call
+OnCallIntent when {User} {Future} on call
